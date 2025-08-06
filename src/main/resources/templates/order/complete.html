@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"></head>
+<body class="bg-gray-100">
+<nav th:replace="~{fragments/header :: navigator}"></nav>
+<div class="container mx-auto p-4 text-center">
+    <div class="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+        <h1 class="text-3xl font-bold mb-4 text-blue-600">주문 완료</h1>
+        <p class="mb-2">주문이 성공적으로 접수되었습니다.</p>
+        <p class="mb-6">주문번호: <span class="font-semibold" th:text="${order.id}"></span></p>
+        <div class="text-left border-t pt-4">
+            <p class="mb-2"><strong>결제 금액:</strong> <span th:text="${#numbers.formatDecimal(order.discountedPrice, 0, 'COMMA', 0, 'POINT')} + '원'"></span></p>
+            <p><strong>주문 상태:</strong> <span th:text="${order.status.description}"></span></p>
+        </div>
+        <a th:href="@{/orders/{id}(id=${order.id})}" class="mt-6 inline-block bg-gray-700 text-white py-2 px-6 rounded-md hover:bg-gray-800">주문 상세 보기</a>
+    </div>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
