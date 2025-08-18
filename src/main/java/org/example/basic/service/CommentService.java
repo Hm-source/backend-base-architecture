@@ -1,6 +1,7 @@
 package org.example.basic.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.basic.controller.post.dto.CommentCreateRequestDto;
@@ -37,7 +38,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto save(CommentCreateRequestDto requestDto) {
+    public CommentResponseDto save(@Valid CommentCreateRequestDto requestDto) {
         Integer postId = requestDto.getPostId();
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new RuntimeException("포스트가 데이터베이스 내 존재하지 않습니다. 포스트 id : " + postId));

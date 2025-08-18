@@ -1,5 +1,6 @@
 package org.example.basic.controller.post;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.example.basic.controller.post.dto.PostCreateRequestDto;
 import org.example.basic.controller.post.dto.PostResponseDto;
 import org.example.basic.service.CommentService;
 import org.example.basic.service.PostService;
-import org.example.basic.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class PostController {
 
-    UserService userService;
     PostService postService;
     CommentService commentService;
 
@@ -42,7 +41,8 @@ public class PostController {
     }
 
     @PostMapping("")
-    public ResponseEntity<PostResponseDto> create(@RequestBody PostCreateRequestDto requestDto) {
+    public ResponseEntity<PostResponseDto> create(
+        @Valid @RequestBody PostCreateRequestDto requestDto) {
         PostResponseDto postResponseDto = postService.save(requestDto);
         return ResponseEntity.ok(postResponseDto);
     }
