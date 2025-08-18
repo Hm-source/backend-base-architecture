@@ -1,5 +1,7 @@
 package org.example.basic.service;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -13,9 +15,12 @@ import org.example.basic.repository.post.entity.Post;
 import org.example.basic.repository.user.UserRepository;
 import org.example.basic.repository.user.entity.User;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -25,7 +30,8 @@ public class CommentService {
     @Transactional
     public CommentResponseDto findById(Integer id) {
         Comment comment = commentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("해당 댓글은 데이터베이스 내 존재하지 않습니다. 코멘트 id : " + id));
+            .orElseThrow(() ->
+                new ResponseStatusException(NOT_FOUND, "댓글이 존재하지 않습니다. id=" + id));
         return CommentResponseDto.from(comment);
     }
 
@@ -41,10 +47,12 @@ public class CommentService {
     public CommentResponseDto save(@Valid CommentCreateRequestDto requestDto) {
         Integer postId = requestDto.getPostId();
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new RuntimeException("포스트가 데이터베이스 내 존재하지 않습니다. 포스트 id : " + postId));
+            .orElseThrow(
+                () -> new ResponseStatusException(NOT_FOUND, "포스트가 존재하지 않습니다. id=" + postId));
         Integer userId = requestDto.getUserId();
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("유저가 데이터베이스 내 존재하지 않습니다. 유저 id : " + userId));
+            .orElseThrow(
+                () -> new ResponseStatusException(NOT_FOUND, "유저가 존재하지 않습니다. id=" + userId));
         Comment comment = Comment.create(
             requestDto.getContent(),
             post,
@@ -57,12 +65,13 @@ public class CommentService {
     @Transactional
     public void delete(Integer postId, Integer commentId) {
         Post post = postRepository.findById(postId)
-            .orElseThrow(() -> new RuntimeException("포스트가 데이터베이스 내 존재하지 않습니다. 포스트 id : " + postId));
+            .orElseThrow(
+                () -> new ResponseStatusException(NOT_FOUND, "포스트가 존재하지 않습니다. id=" + postId));
         Comment found = post.getComments().stream()
             .filter((comment) -> commentId.equals(comment.getId()))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException(
-                "포스트 내 해당 댓글이 존재하지 않습니다. 포스트 id : " + postId + " - 댓글 id: " + commentId));
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND,
+                "해당 댓글이 포스트에 없습니다. postId=" + postId + ", commentId=" + commentId));
         post.getComments().remove(found);
         /*
         JPA에서 양방향 연관관계 + Cascade + orphanRemoval이 설정되어 있으면,
