@@ -3,6 +3,7 @@ package org.example.basic.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,7 +23,15 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors((cors) -> cors.configurationSource(reactConfigurationSource))
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // 전체 오픈
+                .requestMatchers(
+                    "/swagger-ui.html", "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs",
+                    "/v3/api-docs/spec",
+                    "/api/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().authenticated()
             );
         return http.build();
     }
